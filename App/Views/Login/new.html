@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Logowanie{% endblock %}
+
+{% block nav %}
+    
+{% include "logoutnav.html" %}
+
+{% endblock %}
+
+{% block main %}
+
+<div class="p-0 col-lg-6">
+
+  <form method="post" action="/login/create" class="p-4 p-md-5 border rounded-3 bg-body-tertiary" id="formLogin">
+    <h5>Podaj dane logowania:</h5>
+
+    <hr class="my-4">
+
+    <div class="form-floating mb-3">
+      <input type="email" class="form-control" id="inputEmail" placeholder="nazwa@domena.com" name="email" value="{{ email }}" />
+      <label for="inputEmail">Email</label>  
+    </div>
+
+    <div class="form-floating mb-3">
+      <input type="password" class="form-control" id="inputPassword" placeholder="Hasło" name="password" />
+      <label for="inputPassword">Hasło</label>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-lg btn-dark">Zaloguj się</button>
+
+    <hr class="my-4">
+    
+    <a href="/password/forgot" class="link-dark">Zapomniałeś hasła?</a>
+  </form>
+</div>
+
+{% endblock %}
+

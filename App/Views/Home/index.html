@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Aplikacja budżetowa{% endblock %}
+
+{% block nav %}
+
+  {% if current_user %}
+    
+      {% include "loginnav.html" %}
+
+  {% else %}
+
+      {% include "logoutnav.html" %}
+
+  {% endif %}
+
+{% endblock %}
+
+{% block main %}
+
+      <div class="col-lg-7 p-lg-5 pt-lg-3 p-4">
+          <header>
+            <h2 class="display-4 fw-bold lh-1 text-body-emphasis pb-2 heading">Uporządkuj swoje finanse
+              {% if current_user %}
+
+              {{ current_user.username }}
+              
+              {% endif %}!        
+            </h2> 
+          </header>
+
+          <p class="lead">Miej kontrolę nad wydatkami, przemyśl swój budżet, zaplanuj poduszkę finansową i żyj spokojniej! Sumiennie dodając wydatki oraz przychody w aplikacji, przekonasz się jak wygląda twój domowy budżet w szerszej perspektywie. Myśl o finansach odpowiedzialnie i sprawdź czy dobrze zarządzasz swoimi pieniędzmi.
+          </p>
+
+          {% if current_user == false %}
+
+          <div class="gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+            <a href="../Login/new" role="button" class="btn btn-dark btn-lg px-4 fw-bold mb-2"> Zaloguj się</a>
+            <a href="../Signup/new" role="button" class="btn btn-dark btn-lg px-4 fw-bold  mb-2"> Zarejestruj się</a>
+        </div>
+          {% endif %}
+      </div>
+
+      <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden">
+        <img class="rounded-3" src="/img/swinka-skarbonka.png" alt="świnka-skarbonka" width="720" >
+      </div>
+
+{% endblock %}

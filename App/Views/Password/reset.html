@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Zmiana hasła{% endblock %}
+
+{% block footer %}
+
+<script src="/js/app.js"></script>
+
+<script>
+        $(document).ready(function() {
+
+            $('#formPassword').validate({
+                rules: {
+                    password: {
+                        required: true,
+                        minlength: 6,
+                        validPassword: true
+                    }
+                },
+                messages: {
+                    password: {
+                      required: 'Hasło jest wymagane',
+                      minlength: 'Hasło wymaga conajmniej 6 znaków'
+                    }
+                }
+            });
+        });
+
+</script>
+
+{% endblock %}
+
+{% block nav %}
+
+{% endblock %}
+
+{% block main %}
+  <div class="p-0 col-lg-6">
+      {% if user.errors is not empty %}
+        <p>Errors:</p>
+          <ul>
+            {% for error in user.errors %}
+            <li> {{ error }}</li>
+            {% endfor %}
+          </ul>
+      {% endif %}
+
+      <form method="post" class="p-4 p-md-5 border rounded-3 bg-body-tertiary" id="formPassword" action="/password/reset-password">
+
+        <h5>Podaj nowe hasło:</h5>
+
+        <hr class="my-4">
+
+        <input type="hidden" name="token" value="{{ token }}" />
+
+        <div class="form-floating mb-3">
+          <input type="password" class="form-control" id="inputPassword" placeholder="Hasło" name="password" />
+          <label for="inputPassword">Hasło</label>
+        </div>
+
+        <button type="submit" class="w-100 btn btn-lg btn-dark">Zmień hasło</button>
+        
+        <hr class="my-4">
+
+      </form>
+    </div>
+
+{% endblock %}

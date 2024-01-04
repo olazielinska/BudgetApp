@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Bilans{% endblock %}
+
+{% block footer %}
+
+<script src="/js/balance.js"></script>
+
+<script>
+
+  var data = {
+      labels: [
+          {% for category in incomeCategorySum %}
+              "{{ category.name }}",
+          {% endfor %}
+      ],
+      datasets: [{
+          data: [
+              {% for category in incomeCategorySum %}
+                  {{ category.sum }},
+              {% endfor %}
+          ],
+          backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+          ],
+          borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+          ],
+          borderWidth: 1
+      }]
+  };
+
+  var config = {
+      type: 'pie',
+      data: data,
+  };
+
+  var myChart = new Chart(
+      document.getElementById('myIncomeChart'),
+      config
+  );
+
+  var data = {
+      labels: [
+          {% for category in expenseCategorySum %}
+              "{{ category.name }}",
+          {% endfor %}
+      ],
+      datasets: [{
+          label: 'Wydatki',
+          data: [
+              {% for category in expenseCategorySum %}
+                  {{ category.sum }},
+              {% endfor %}
+          ],
+          backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+          ],
+          borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+          ],
+          borderWidth: 1
+      }]
+  };
+
+  var config = {
+      type: 'bar',
+      data: data,
+  };
+
+  var myChart = new Chart(
+      document.getElementById('myExpenseChart'),
+      config
+  );
+
+</script>
+
+{% endblock %}
+
+{% block nav %}
+    
+{% include "loginnav.html" %}
+
+{% endblock %}
+
+{% block main %}
+
+<header>
+  
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="p-2">
+      <h1 class="heading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>
+        </svg>Przeglądaj bilans
+      </h1>
+    </div>
+
+    <div class="col-4 p-2">
+      <div class="dropdown">
+        <a class="btn btn-dark dropdown-toggle w-100" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Wybierz okres
+        </a>
+        <ul class="dropdown-menu w-100">
+          <li><a class="dropdown-item" href="/Balance/currentMonth">Bieżący miesiąc</a></li>
+          <li><a class="dropdown-item" href="/Balance/previousMonth">Poprzedni miesiąc</a></li>
+          <li><a class="dropdown-item" href="/Balance/previousYear">Poprzedni rok</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#selectDate">Niestandardowe</a>
+          </li>
+        </ul>
+      </div> 
+      
+      <div class="modal fade" id="selectDate" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title fs-5" id="exampleModalLabel">Wprowadź zakres</h2>
+            </div>
+  
+            <div class="modal-body">
+              <form method="post" action="/balance/customDate" id="formModal">
+                <input type="date" class="form-control" name="startDate">
+                <br>
+                <input type="date" class="form-control" name="endDate">
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+              <button type="submit" class="btn btn-dark">Zatwierdź</button>
+            </div>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr class="my-3"> 
+
+</header>
+
+<section class="col-lg-10">
+  <div class="d-flex align-items-center justify-content-start">
+
+    {% if allIncomes is null and allExpenses is null %}
+      <p>Wybierz okres!</p>
+    {% else %}
+    <p class="fw-bold">Bilans z przedziału:&nbsp</p>
+      {% for period in date %}
+        <p class="fw-bold">{{ period }}&nbsp&nbsp</p>
+      {% endfor %}
+    {% endif %}
+
+  </div>
+
+  <div class="d-flex justify-content-between">
+
+    <div class="col-lg-5 pt-lg-3">
+      <table class="table table-outline-dark border table-sm">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" style="width: 300px">Przychody</th>
+                <th scope="col">Suma</th>
+            </tr>
+        </thead>
+    
+        <tbody>
+            {% for category in incomeCategorySum %}
+            <tr>
+                <td>
+                    <div class="categoryName pb-2" style="cursor: pointer;" onclick="toggleDetails('{{ category.name }}')">
+                        {{ category.name }}
+                    </div>
+                    <div class="category-details" id="{{ category.name }}-details" style="display: none;">
+                        {% for income in allIncomes %}
+                        {% if income.name == category.name %}
+                        <table>
+                            <tr>
+                                <td class="fw-bold">{{ income.amount }} zł</td>
+                            </tr>
+                            <tr>
+                                <td>Data: {{ income.date_of_income }}</td>
+                            </tr>
+
+                            {% if income.income_comment %}
+                            <tr>
+                                <td>Komentarz: {{ income.income_comment }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                              <td>
+                                <form method="post" action="/balance/removeIncome">
+                                  <input type="hidden" name="income_id" value="{{ income.id }}">
+                                  <button type="submit" class="btn btn pb-2 delete-icon" >Usuń
+                                    <svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                                  </svg>
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                        </table>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>{{ category.sum }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    
+        <tfoot class="table-dark">
+            <tr>
+                <th scope="col">Łącznie:</th>
+    
+                {% set incomeSum = 0 %}
+                {% for category in incomeCategorySum %}
+                {% set incomeSum = incomeSum + category.sum %}
+                {% endfor %}
+    
+                <th scope="col"> {{ incomeSum }} </th>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+    
+    <div class="col-lg-5 pt-lg-3">
+      <table class="table table-outline-dark border table-sm">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" style="width: 300px">Wydatki</th>
+                <th scope="col">Suma</th>
+            </tr>
+        </thead>
+    
+        <tbody>
+            {% for category in expenseCategorySum %}
+            <tr>
+                <td>
+                    <div class="categoryName pb-2" style="cursor: pointer;" onclick="toggleDetails('{{ category.name }}')">
+                        {{ category.name }}
+                    </div>
+                    <div class="category-details" id="{{ category.name }}-details" style="display: none;">
+                        {% for expense in allExpenses %}
+                        {% if expense.name == expense.name %}
+                        <table>
+                            <tr>
+                                <td class="fw-bold">Kwota: {{ expense.amount }} zł</td>
+                            </tr>
+                            <tr>
+                                <td>Data: {{ expense.date_of_expense }}</td>
+                            </tr>
+                            <tr>
+                              <td>Płatność: {{ expense.payment_method }}</td>
+                            </tr>
+
+                            {% if expense.expense_comment %}
+                            <tr>
+                                <td>Komentarz: {{ expense.expense_comment }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                              <td>
+                                <form method="post" action="/balance/removeExpense">
+                                  <input type="hidden" name="expense_id" value="{{ expense.id }}">
+                                  <button type="submit" class="btn pb-2 delete-icon" >Usuń
+                                    <svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                                  </svg>
+                                  </button>
+                                </form>
+                              </td>
+                            </tr>
+                        </table>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>{{ category.sum }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    
+        <tfoot class="table-dark">
+            <tr>
+                <th scope="col">Łącznie:</th>
+    
+                {% set expenseSum = 0 %}
+                {% for category in expenseCategorySum %}
+                {% set expenseSum = expenseSum + category.sum %}
+                {% endfor %}
+    
+                <th scope="col"> {{ expenseSum }} </th>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+  </div>
+</section>
+
+<section class="col-lg-10">
+  <div class="d-flex justify-content-start">
+    <h4 class="fw-bold p-2">Podsumowanie wydatków:</h4>
+  </div>
+{% if incomeSum > 0 %}
+  <div class="pb-3 d-flex flex-column align-items-center">
+    <div style="width: 300px; height: 300px;">
+      <canvas id="myIncomeChart"></canvas>
+    </div>
+  </div>
+{% else %}
+  <p class="p-2">Nie masz przychodów w tym okresie!</p>
+{% endif %}
+
+  <div class="d-flex justify-content-start">
+    <h4 class="fw-bold p-2">Podsumowanie wydatków:</h4>
+  </div>
+  {% if expenseSum == 0 %}
+    <p class="p-2">Nie masz wydatków w tym okresie!</p>
+  {% endif %}
+  <canvas id="myExpenseChart" width="400" height="150"></canvas>
+</section>
+
+<section class="col-lg-10 pb-3">
+  <hr class="my-3"> 
+
+  {% set balance = 0 %}
+
+  {% set balance = incomeSum - expenseSum %}
+
+  <h2 class="pb-3 fw-bold">Twój bilas: {{ balance }} zł</h2>
+
+  {% if balance > 0 %}
+    <h3 style="color: rgb(22, 202, 22);">Jesteś na plusie!</h3>
+  {% elseif balance < 0 %}
+    <h3 style="color: red;">Uważaj, jesteś na minusie!</h3>
+  {% else %}
+    <h3>Wychodzisz na zero!</h3>
+  {% endif %}
+  
+</section>
+
+{% endblock %}
+
