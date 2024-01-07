@@ -1,3 +1,17 @@
+document.getElementById('currentDate').value = getCurrentDate();
+
+function getCurrentDate(){
+
+  const today = new Date();
+  
+  const year = today.getFullYear();
+  const month = (today.getMonth() + 1).toString().padStart(2, '0');
+  const day = today.getDate().toString().padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+
+  return formattedDate;
+}
+
 $(document).ready(function() {
 
   $('#formExpense').validate({
@@ -43,60 +57,67 @@ $(document).ready(function() {
 });
 
 let categoryField = document.getElementById('selectExpenseCategory');
-
 let dateField = document.querySelector('.selectExpenseDate');
-
 let amountField = document.querySelector('.selectAmount');
 
-categoryField.addEventListener('change', async (event) => {
-  let selectedCategory = event.target.value;
+categoryField.addEventListener('change', async () => {
+  await updateLimitInformation();
+});
 
+dateField.addEventListener('change', async () => {
+  await updateMonthlyExpensesInformation();
+});
+
+amountField.addEventListener('input', async () => {
+  await updateBalanceInformation();
+});
+
+const updateLimitInformation = async () => {
+  let selectedCategory = categoryField.value;
   let limit = await getLimitForCategory(selectedCategory);
 
   if (limit !== null && limit !== undefined) {
-      document.getElementById('limitField').innerHTML = `Miesięczny limit dla tej kategorii wynosi: ${limit} zł`;
+    document.getElementById('limitField').innerHTML = `Miesięczny limit dla tej kategorii wynosi: ${limit} zł`;
   } else {
-     document.getElementById('limitField').innerHTML = 'Limit dla tej kategorii nie został ustalony.';
+    document.getElementById('limitField').innerHTML = 'Limit dla tej kategorii nie został ustalony.';
   }
-  });
 
-  dateField.addEventListener('change', async (event) => {
-    let selectedDate = event.target.value;
-  
-    let selectedCategory = categoryField.value;
-  
-    let monthlyExpenses = await getMonthlyExpensesForCategory(selectedCategory, selectedDate);
-  
-    if (monthlyExpenses !== null && monthlyExpenses !== undefined) {
-        document.getElementById('limitValue').innerHTML = `Wydatki w tym miesiącu wynoszą ${monthlyExpenses} zł`;
-    } else {
-        document.getElementById('limitValue').innerHTML = 'W tym miesiącu nie masz wydatków w tej kategorii!';
-    }
-    });
+  await updateMonthlyExpensesInformation();
+  await updateBalanceInformation();
+};
 
-amountField.addEventListener('input', async (event) => {
-  let selectedAmount = event.target.value;
+const updateMonthlyExpensesInformation = async () => {
+  let selectedDate = dateField.value;
+  let selectedCategory = categoryField.value;
+  let monthlyExpenses = await getMonthlyExpensesForCategory(selectedCategory, selectedDate);
 
-  let selectedCategory = categoryField.value
+  if (monthlyExpenses !== null && monthlyExpenses !== undefined) {
+    document.getElementById('limitValue').innerHTML = `Wydatki w tym miesiącu wynoszą ${monthlyExpenses} zł`;
+  } else {
+    document.getElementById('limitValue').innerHTML = 'W tym miesiącu nie masz wydatków w tej kategorii!';
+  }
 
+  await updateBalanceInformation();
+};
+
+const updateBalanceInformation = async () => {
+  let selectedAmount = amountField.value;
+  let selectedCategory = categoryField.value;
   let selectedDate = dateField.value;
 
   let limit = await getLimitForCategory(selectedCategory);
 
   if (limit !== null && limit !== undefined) {
-
     let monthlyExpenses = await getMonthlyExpensesForCategory(selectedCategory, selectedDate);
-
     let balance = limit - monthlyExpenses - selectedAmount;
 
-    if(balance < 0){
-
+    if (balance < 0) {
       document.getElementById('limitAfterOperation').innerHTML = `<span style="color: red;">Po dodaniu tego wydatku twój limit wynosić będzie: ${balance} zł </span>`;
-    }else{
+    } else {
       document.getElementById('limitAfterOperation').innerHTML = `Po dodaniu tego wydatku twój limit wynosić będzie: ${balance} zł `;
     }
   }
-});
+};
 
 const getLimitForCategory = async (category) => {
   try{
